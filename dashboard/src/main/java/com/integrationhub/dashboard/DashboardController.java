@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class DashboardController {
@@ -148,9 +150,24 @@ public class DashboardController {
                     main{ padding:18px; }
                     .layout{
                       display:grid;
-                      grid-template-columns: 1.1fr 0.9fr;
+                      grid-template-columns: 1fr;
+                      grid-template-rows: auto 1fr;
                       gap: var(--gap);
                       min-height: calc(100vh - 70px);
+                    }
+                    .layout > .panel:first-child{
+                      grid-column: 1;
+                      grid-row: 1;
+                    }
+                    .layout > .panel:last-child{
+                      display: none;
+                    }
+                    .bottom-panels{
+                      display: grid;
+                      grid-template-columns: 1.1fr 0.9fr;
+                      gap: var(--gap);
+                      grid-column: 1;
+                      grid-row: 2;
                     }
 
                     .panel{
@@ -555,6 +572,22 @@ public class DashboardController {
                       color: rgba(35,196,131,0.92);
                       margin-top: 4px;
                     }
+                    .server-tile-unreachable{
+                      background: rgba(239,68,68,0.12) !important;
+                      border-color: rgba(239,68,68,0.35) !important;
+                    }
+                    .server-tile-unreachable:hover{
+                      background: rgba(239,68,68,0.18) !important;
+                      border-color: rgba(239,68,68,0.45) !important;
+                      box-shadow: 0 8px 20px rgba(239,68,68,0.15) !important;
+                    }
+                    .server-tile-status{
+                      font-size: 12px;
+                      font-weight: 700;
+                      color: rgba(239,68,68,0.95);
+                      text-transform: uppercase;
+                      letter-spacing: 0.5px;
+                    }
 
                     /* SERVER DETAIL MODAL */
                     .server-modal-overlay{
@@ -799,7 +832,7 @@ public class DashboardController {
                 <main>
                   <section class="layout">
 
-                    <!-- LEFT PANEL -->
+                    <!-- FLEET PANEL - FULL WIDTH -->
                     <div class="panel">
                       <div class="panel-head">
                         <h2>Fleet</h2>
@@ -811,76 +844,87 @@ public class DashboardController {
                         <h3>EMS Servers</h3>
                         <div class="servers-grid" id="serversGrid"></div>
                       </div>
-
-                      <div class="left-wrap">
-                        <div class="alpha-index" id="alphaIndex"></div>
-
-                        <div class="scroll-area" id="scrollArea">
-                          <div class="sticky-top">
-                            <div class="summary">
-                              <div class="counts" id="counts"></div>
-                              <div class="filters" id="filters"></div>
-                            </div>
-                            <div class="search">
-                              <input id="search" placeholder="Search ship name (e.g. Apex, Icon)..." />
-                            </div>
-                          </div>
-
-                          <div class="section-title">
-                            <span>Needs Attention</span>
-                            <span class="pill" id="attentionCount">0</span>
-                          </div>
-                          <div class="attention-list" id="attentionList"></div>
-
-                          <div class="section-title" style="margin-top:18px;">
-                            <span>All Ships (A–Z)</span>
-                            <span class="pill" id="allCount">0</span>
-                          </div>
-                          <div class="attention-list" id="allList"></div>
-                        </div>
-                      </div>
                     </div>
 
-                    <!-- RIGHT PANEL -->
-                    <div class="panel">
-                      <div class="panel-head">
-                        <h2>Ship Details</h2>
-                        <div class="sub">status, KPIs, recent events</div>
+                    <!-- BOTTOM PANELS - NEEDS ATTENTION & SHIP DETAILS -->
+                    <div class="bottom-panels">
+                      <!-- LEFT: NEEDS ATTENTION & ALL SHIPS -->
+                      <div class="panel">
+                        <div class="panel-head">
+                          <h2>Ship List</h2>
+                          <div class="sub">Select a ship for details</div>
+                        </div>
+
+                        <div class="left-wrap">
+                          <div class="alpha-index" id="alphaIndex"></div>
+
+                          <div class="scroll-area" id="scrollArea">
+                            <div class="sticky-top">
+                              <div class="summary">
+                                <div class="counts" id="counts"></div>
+                                <div class="filters" id="filters"></div>
+                              </div>
+                              <div class="search">
+                                <input id="search" placeholder="Search ship name (e.g. Apex, Icon)..." />
+                              </div>
+                            </div>
+
+                            <div class="section-title">
+                              <span>Needs Attention</span>
+                              <span class="pill" id="attentionCount">0</span>
+                            </div>
+                            <div class="attention-list" id="attentionList"></div>
+
+                            <div class="section-title" style="margin-top:18px;">
+                              <span>All Ships (A–Z)</span>
+                              <span class="pill" id="allCount">0</span>
+                            </div>
+                            <div class="attention-list" id="allList"></div>
+                          </div>
+                        </div>
                       </div>
 
-                      <div class="dash">
-                        <div class="hero" id="hero">
-                          <div class="hero-top">
-                            <div>
-                              <h3>Selected Ship</h3>
-                              <div class="shipname" id="shipName">—</div>
-                              <div class="meta" id="shipMeta">Click a ship on the left</div>
+                      <!-- RIGHT: SHIP DETAILS -->
+                      <div class="panel">
+                        <div class="panel-head">
+                          <h2>Ship Details</h2>
+                          <div class="sub">status, KPIs, recent events</div>
+                        </div>
+
+                        <div class="dash">
+                          <div class="hero" id="hero">
+                            <div class="hero-top">
+                              <div>
+                                <h3>Selected Ship</h3>
+                                <div class="shipname" id="shipName">—</div>
+                                <div class="meta" id="shipMeta">Click a ship on the left</div>
+                              </div>
+                              <div class="actions">
+                                <button class="btn" id="btnAck">Acknowledge</button>
+                              </div>
                             </div>
-                            <div class="actions">
-                              <button class="btn" id="btnAck">Acknowledge</button>
+
+                            <div class="grid2">
+                              <div class="kpi"><div class="label">Status</div><div class="val" id="kStatus">—</div></div>
+                              <div class="kpi"><div class="label">Last Seen</div><div class="val" id="kSeen">—</div></div>
+                              <div class="kpi"><div class="label">Error Rate</div><div class="val" id="kErrRate">—</div></div>
+                              <div class="kpi"><div class="label">Queue Depth</div><div class="val" id="kQueue">—</div></div>
+                              <div class="kpi"><div class="label">Latency</div><div class="val" id="kLat">—</div></div>
+                              <div class="kpi"><div class="label">Acked?</div><div class="val" id="kAck">—</div></div>
                             </div>
                           </div>
 
-                          <div class="grid2">
-                            <div class="kpi"><div class="label">Status</div><div class="val" id="kStatus">—</div></div>
-                            <div class="kpi"><div class="label">Last Seen</div><div class="val" id="kSeen">—</div></div>
-                            <div class="kpi"><div class="label">Error Rate</div><div class="val" id="kErrRate">—</div></div>
-                            <div class="kpi"><div class="label">Queue Depth</div><div class="val" id="kQueue">—</div></div>
-                            <div class="kpi"><div class="label">Latency</div><div class="val" id="kLat">—</div></div>
-                            <div class="kpi"><div class="label">Acked?</div><div class="val" id="kAck">—</div></div>
+                          <div class="log">
+                            <h3>Recent Events</h3>
+                            <div class="events" id="events"></div>
                           </div>
-                        </div>
 
-                        <div class="log">
-                          <h3>Recent Events</h3>
-                          <div class="events" id="events"></div>
-                        </div>
-
-                        <div class="log">
-                          <h3>Notes</h3>
-                          <div style="color:rgba(255,255,255,0.70);font-size:12px;line-height:1.5">
-                            Dashboard shows the key idea: <b>operators don't hunt</b> — the UI
-                            elevates ships with errors/warnings automatically while still offering A–Z lookup.
+                          <div class="log">
+                            <h3>Notes</h3>
+                            <div style="color:rgba(255,255,255,0.70);font-size:12px;line-height:1.5">
+                              Dashboard shows the key idea: <b>operators don't hunt</b> — the UI
+                              elevates ships with errors/warnings automatically while still offering A–Z lookup.
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -953,6 +997,12 @@ public class DashboardController {
                       
                       // Convert queue data to ship-like objects
                       queues.forEach((queue, idx) => {
+                        // Skip queues with pms.fcweb.cache in the name
+                        if (queue.queueName && queue.queueName.toLowerCase().includes('pms.fcweb.cache')) {
+                          console.log(`Skipping filtered queue: ${queue.serverName} / ${queue.queueName}`);
+                          return; // Skip this queue
+                        }
+                        
                         // Map status: critical->err, warning->warn, ok->ok
                         let shipStatus = 'ok';
                         if (queue.status === 'critical' || queue.messageCount > 10000) {
@@ -1005,6 +1055,7 @@ public class DashboardController {
                       ships.push(...realShips);
                       ensureAllLetters();
                       render();
+                      renderServerTiles(); // Update server tiles with new error/warning counts
                       console.log('Data refreshed successfully');
                     }
                     
@@ -1160,20 +1211,35 @@ public class DashboardController {
                     const serverDataMap = buildServerQueuesMap();
                     
                     // Create tiles for ALL configured servers
-                    configuredServers.sort().forEach(serverName => {
+                    configuredServers.sort((a, b) => {
+                      const nameA = typeof a === 'string' ? a : a.name;
+                      const nameB = typeof b === 'string' ? b : b.name;
+                      return nameA.localeCompare(nameB);
+                    }).forEach(serverItem => {
+                      const serverName = typeof serverItem === 'string' ? serverItem : serverItem.name;
+                      const serverStatus = typeof serverItem === 'string' ? 'UNKNOWN' : (serverItem.status || 'UNKNOWN');
                       const queues = serverDataMap[serverName] || [];
                       const errorCount = queues.filter(q => q.status === 'err').length;
                       const warnCount = queues.filter(q => q.status === 'warn').length;
-                      const statusIndicator = errorCount > 0 ? '🔴' : (warnCount > 0 ? '🟡' : '🟢');
                       
                       const tile = document.createElement('button');
                       tile.className = 'server-tile';
                       
-                      tile.innerHTML = `
-                        <div class="server-tile-name">${statusIndicator} ${serverName}</div>
-                        <div class="server-tile-count">${queues.length}</div>
-                        <div class="server-tile-info">${errorCount} errors • ${warnCount} warnings</div>
-                      `;
+                      // Apply red styling if server is unreachable
+                      if (serverStatus === 'UNREACHABLE') {
+                        tile.classList.add('server-tile-unreachable');
+                        tile.innerHTML = `
+                          <div class="server-tile-name">🔴 ${serverName}</div>
+                          <div class="server-tile-status">unreachable!</div>
+                        `;
+                      } else {
+                        const statusIndicator = errorCount > 0 ? '🔴' : (warnCount > 0 ? '🟡' : '🟢');
+                        tile.innerHTML = `
+                          <div class="server-tile-name">${statusIndicator} ${serverName}</div>
+                          <div class="server-tile-count">${queues.length}</div>
+                          <div class="server-tile-info">${errorCount} errors • ${warnCount} warnings</div>
+                        `;
+                      }
                       
                       tile.addEventListener('click', () => {
                         openServerModal(serverName);
@@ -1544,6 +1610,12 @@ public class DashboardController {
                     return h + "h ago";
                   }
 
+                  function lastEventSummary(ship){
+                    if(!ship.events || ship.events.length === 0) return "No recent events";
+                    const lastEvent = ship.events[0];
+                    return lastEvent.msg || "No message";
+                  }
+
                   function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
 
                   function escapeHtml(str){
@@ -1657,10 +1729,16 @@ public class DashboardController {
 
     @GetMapping("/api/configured-servers")
     @ResponseBody
-    public List<String> getConfiguredServers() {
+    public List<Map<String, String>> getConfiguredServers() {
+        Map<String, String> serverStatusMap = tibcoEmsQueueService.getServerStatus();
         return tibcoEmsQueueService.getAllServers()
                 .stream()
-                .map(TibcoEmsProperties.Server::getName)
+                .map(server -> {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("name", server.getName());
+                    map.put("status", serverStatusMap.getOrDefault(server.getName(), "UNKNOWN"));
+                    return map;
+                })
                 .toList();
     }
 }

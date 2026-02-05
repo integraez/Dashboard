@@ -10,6 +10,7 @@ import jakarta.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 
 @Service
@@ -22,6 +23,7 @@ public class TibcoEmsQueueService {
     private final TibcoEmsService tibcoEmsService;
     private final ExecutorService executorService;
     private final boolean tibcoLibAvailable;
+    private final Map<String, String> serverStatusMap = new ConcurrentHashMap<>(); // Track server connection status
 
     public TibcoEmsQueueService(TibcoEmsService tibcoEmsService) {
         this.tibcoEmsService = tibcoEmsService;
@@ -180,6 +182,7 @@ public class TibcoEmsQueueService {
                     .newInstance(url, server.getUsername(), decryptedPassword);
 
             logger.info("Successfully connected to {}", server.getName());
+            serverStatusMap.put(server.getName(), "OK");
 
             // Get all queues: admin.getQueues()
             Object[] queueInfos = (Object[]) tibjmsAdminClass.getMethod("getQueues").invoke(admin);
@@ -208,9 +211,11 @@ public class TibcoEmsQueueService {
             
         } catch (ClassNotFoundException e) {
             logger.error("TIBCO library not found: {}", e.getMessage());
+            serverStatusMap.put(server.getName(), "UNREACHABLE");
         } catch (Exception e) {
             logger.error("Error connecting to server {}: {} - {}", 
                         server.getName(), e.getClass().getName(), e.getMessage(), e);
+            serverStatusMap.put(server.getName(), "UNREACHABLE");
         } finally {
             if (admin != null) {
                 try {
@@ -222,5 +227,9 @@ public class TibcoEmsQueueService {
         }
 
         return queues;
+    }
+
+    public Map<String, String> getServerStatus() {
+        return new ConcurrentHashMap<>(serverStatusMap);
     }
 }
