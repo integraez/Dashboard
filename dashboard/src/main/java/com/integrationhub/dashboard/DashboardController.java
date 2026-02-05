@@ -28,7 +28,7 @@ public class DashboardController {
                 <head>
                   <meta charset="UTF-8" />
                   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-                  <title>Ships Health Dashboard POC</title>
+                  <title>EMS Health Dashboard </title>
                   <style>
                     :root{
                       --bg0:#070b18; --bg1:#0b1020;
@@ -777,7 +777,7 @@ public class DashboardController {
                 <body>
                 <header>
                   <div class="topbar">
-                    <div class="title"><span class="badge">OPS</span> Ships Health Dashboard (POC)</div>
+                    <div class="title"><span class="badge">Operations</span> EMS Health Dashboard</div>
                     <div class="hint">Attention surfaces automatically • Filter by status • Click a ship → details & events • <span id="nextRefresh">Next refresh in 2:00</span></div>
                     <div style="display:flex; gap:8px;">
                       <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">
@@ -879,7 +879,7 @@ public class DashboardController {
                         <div class="log">
                           <h3>Notes</h3>
                           <div style="color:rgba(255,255,255,0.70);font-size:12px;line-height:1.5">
-                            This POC shows the key idea: <b>operators don't hunt</b> — the UI
+                            Dashboard shows the key idea: <b>operators don't hunt</b> — the UI
                             elevates ships with errors/warnings automatically while still offering A–Z lookup.
                           </div>
                         </div>
