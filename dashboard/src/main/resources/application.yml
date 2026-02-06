@@ -1,0 +1,311 @@
+spring:
+  application:
+    name: dashboard
+  boot:
+    context:
+      properties:
+        ignore-unbound-configuration-properties: true
+
+tibco:
+  ems:
+    servers:
+      - name: TST2-ESB
+        host: nlems921.nowlab.tstsh.tstrccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_TS
+        ssl-enabled: false
+      - name: TST2-SHORE
+        host: nlems921.nowlab.tstsh.tstrccl.com
+        port: 7444
+        username: admin
+        password: adminShipPRD_TS
+        ssl-enabled: false
+      - name: STG3-ESB
+        host: nlems931.nowlab.tstsh.tstrccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_ST
+        ssl-enabled: false
+      - name: STG8-ESB
+        host: nlems981.nowlab.tstsh.tstrccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_ST
+        ssl-enabled: false
+      - name: AD-Adventure
+        host: adems931.adventure.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_AD
+        ssl-enabled: false
+      - name: AL-Allure
+        host: alems931.allure.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_AL
+        ssl-enabled: false
+      - name: AN-Anthem
+        host: anems931.anthem.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_AN
+        ssl-enabled: false
+      - name: AT-Ascent
+        host: atems931.ascent.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_AT
+        ssl-enabled: false
+      - name: AX-Apex
+        host: axems931.apex.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_AX
+        ssl-enabled: false
+      - name: BY-Beyond
+        host: byems931.beyond.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_BY
+        ssl-enabled: false
+      - name: BR-Brilliance
+        host: brems931.brilliance.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_BR
+        ssl-enabled: false
+      - name: CS-Constellation
+        host: 10.142.31.151
+        port: 7222
+        username: admin
+        password: adminShipPRD_CS
+        ssl-enabled: false
+      - name: CC-CocoCay
+        host: ccems931.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_CC
+        ssl-enabled: false
+      - name: EC-Eclipse
+        host: ecems931.eclipse.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_EC
+        ssl-enabled: false
+      - name: EG-Edge
+        host: egems931.edge.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_EG
+        ssl-enabled: false
+      - name: EN-Enchantment
+        host: enems931.enchantment.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_EN
+        ssl-enabled: false
+      - name: EQ-Equinox
+        host: eqems931.equinox.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_EQ
+        ssl-enabled: false
+      - name: EX-Explorer
+        host: exems931.explorer.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_EX
+        ssl-enabled: false
+      - name: FL-Flora
+        host: flems931.flora.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_FL
+        ssl-enabled: false
+      - name: FR-Freedom
+        host: frems931.freedom.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_FR
+        ssl-enabled: false
+      - name: GR-Grandeur
+        host: grems931.grandeur.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_GR
+        ssl-enabled: false
+      - name: HM-Harmony
+        host: hmems931.harmony.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_HM
+        ssl-enabled: false
+      - name: IC-Icon
+        host: icems931.icon.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_IC
+        ssl-enabled: false
+      - name: ID-Independence
+        host: idems931.independence.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_ID
+        ssl-enabled: false
+      - name: IN-Infinity
+        host: inems931.infinity.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_IN
+        ssl-enabled: false
+      - name: JW-Jewel
+        host: jwems931.jewel.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_JW
+        ssl-enabled: false
+      - name: LE-Legend
+        host: leems931.legend.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_LE
+        ssl-enabled: false
+      - name: LB-Liberty
+        host: lbems931.liberty.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_LB
+        ssl-enabled: false
+      - name: MA-Mariner
+        host: maems931.mariner.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_MA
+        ssl-enabled: false
+      - name: ML-Millennium
+        host: mlems931.millennium.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_ML
+        ssl-enabled: false
+      - name: NV-Navigator
+        host: nvems931.navigator.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_NV
+        ssl-enabled: false
+      - name: OA-Oasis
+        host: oaems931.oasis.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_OA
+        ssl-enabled: false
+      - name: OV-Ovation
+        host: ovems931.ovation.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_OV
+        ssl-enabled: false
+      - name: OY-Odyssey
+        host: oyems931.odyssey.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_OY
+        ssl-enabled: false
+      - name: QN-Quantum
+        host: qnems931.quantum.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_QN
+        ssl-enabled: false
+      - name: RD-Radiance
+        host: rdems931.radiance.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_RD
+        ssl-enabled: false
+      - name: RF-Reflection
+        host: rfems931.reflection.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_RF
+        ssl-enabled: false
+      - name: RH-Rhapsody
+        host: rhems931.rhapsody.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_RH
+        ssl-enabled: false
+      - name: SC-Spectrum
+        host: scems931.spectrum.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_SC
+        ssl-enabled: false
+      - name: SI-Silhouette
+        host: siems931.silhouette.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_SI
+        ssl-enabled: false
+      - name: SL-Solstice
+        host: slems931.solstice.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_SL
+        ssl-enabled: false
+      - name: SM-Summit
+        host: 10.141.31.151
+        port: 7222
+        username: admin
+        password: adminShipPRD_SM
+        ssl-enabled: false
+      - name: SR-Serenade
+        host: srems931.serenade.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_SR
+        ssl-enabled: false
+      - name: ST-Star
+        host: stems931.star.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_ST
+        ssl-enabled: false
+      - name: SY-Symphony
+        host: syems931.symphony.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_SY
+        ssl-enabled: false
+      - name: UT-Utopia
+        host: utems931.utopia.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_UT
+        ssl-enabled: false
+      - name: VI-Vision
+        host: viems931.vision.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_VI
+        ssl-enabled: false
+      - name: VY-Voyager
+        host: vyems931.voyager.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_VY
+        ssl-enabled: false
+      - name: WN-Wonder
+        host: wnems931.wonder.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_WN
+        ssl-enabled: false
+      - name: XC-XCEL
+        host: xcems931.xcel.sh.rccl.com
+        port: 7222
+        username: admin
+        password: adminShipPRD_XC
+        ssl-enabled: false

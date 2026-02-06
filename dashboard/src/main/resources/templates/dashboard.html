@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>EMS Health Dashboard</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header>
+  <div class="topbar">
+    <div class="title"><span class="badge">Operations</span> EMS Health Dashboard</div>
+    <div class="hint">Attention surfaces automatically • Filter by status • Click a ship → details & events • <span id="nextRefresh">Next refresh in 2:00</span></div>
+    <div style="display:flex; gap:8px;">
+      <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 8c0-3.3-2.7-6-6-6-2.4 0-4.4 1.4-5.4 3.4M2 8c0 3.3 2.7 6 6 6 2.4 0 4.4-1.4 5.4-3.4M14 4v4h-4M2 12v-4h4"/>
+        </svg>
+        Refresh Now
+      </button>
+      <button class="back-btn" onclick="window.location.href='/'">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10 12L6 8l4-4"/>
+        </svg>
+        Back to Home
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="layout">
+
+    <!-- FLEET PANEL - FULL WIDTH -->
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Fleet</h2>
+        <div class="sub"><span id="lastTick">—</span></div>
+      </div>
+
+      <!-- SERVER TILES SECTION -->
+      <div class="servers-section">
+        <h3>EMS Servers</h3>
+        <div class="servers-grid" id="serversGrid"></div>
+      </div>
+    </div>
+
+    <!-- BOTTOM PANELS - NEEDS ATTENTION & SHIP DETAILS -->
+    <div class="bottom-panels">
+      <!-- LEFT: NEEDS ATTENTION & ALL SHIPS -->
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Ship List</h2>
+          <div class="sub">Select a ship for details</div>
+        </div>
+
+        <div class="left-wrap">
+          <div class="alpha-index" id="alphaIndex"></div>
+
+          <div class="scroll-area" id="scrollArea">
+            <div class="sticky-top">
+              <div class="summary">
+                <div class="counts" id="counts"></div>
+                <div class="filters" id="filters"></div>
+              </div>
+              <div class="search">
+                <input id="search" placeholder="Search ship name (e.g. Apex, Icon)..." />
+              </div>
+            </div>
+
+            <div class="section-title">
+              <span>Needs Attention</span>
+              <span class="pill" id="attentionCount">0</span>
+            </div>
+            <div class="attention-list" id="attentionList"></div>
+
+            <div class="section-title" style="margin-top:18px;">
+              <span>All Ships (A–Z)</span>
+              <span class="pill" id="allCount">0</span>
+            </div>
+            <div class="attention-list" id="allList"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: SHIP DETAILS -->
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Ship Details</h2>
+          <div class="sub">status, KPIs, recent events</div>
+        </div>
+
+        <div class="dash">
+          <div class="hero" id="hero">
+            <div class="hero-top">
+              <div>
+                <h3>Selected Ship</h3>
+                <div class="shipname" id="shipName">—</div>
+                <div class="meta" id="shipMeta">Click a ship on the left</div>
+              </div>
+              <div class="actions">
+                <button class="btn" id="btnAck">Acknowledge</button>
+              </div>
+            </div>
+
+            <div class="grid2">
+              <div class="kpi"><div class="label">Status</div><div class="val" id="kStatus">—</div></div>
+              <div class="kpi"><div class="label">Last Seen</div><div class="val" id="kSeen">—</div></div>
+              <div class="kpi"><div class="label">Error Rate</div><div class="val" id="kErrRate">—</div></div>
+              <div class="kpi"><div class="label">Queue Depth</div><div class="val" id="kQueue">—</div></div>
+              <div class="kpi"><div class="label">Latency</div><div class="val" id="kLat">—</div></div>
+              <div class="kpi"><div class="label">Acked?</div><div class="val" id="kAck">—</div></div>
+            </div>
+          </div>
+
+          <div class="log">
+            <h3>Recent Events</h3>
+            <div class="events" id="events"></div>
+          </div>
+
+          <div class="log">
+            <h3>Notes</h3>
+            <div style="color:rgba(255,255,255,0.70);font-size:12px;line-height:1.5">
+              Dashboard shows the key idea: <b>operators don't hunt</b> — the UI
+              elevates ships with errors/warnings automatically while still offering A–Z lookup.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<!-- SERVER DETAIL MODAL -->
+<div class="server-modal-overlay" id="serverModalOverlay">
+  <div class="server-modal" id="serverModal">
+    <div class="server-modal-header">
+      <h2 id="serverModalTitle">Server Queues</h2>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn" id="serverModalRefreshBtn" onclick="refreshServerModalQueues()" style="font-size: 12px;">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 8c0-3.3-2.7-6-6-6-2.4 0-4.4 1.4-5.4 3.4M2 8c0 3.3 2.7 6 6 6 2.4 0 4.4-1.4 5.4-3.4M14 4v4h-4M2 12v-4h4"/>
+          </svg>
+          Refresh
+        </button>
+        <button class="server-modal-close" onclick="closeServerModal()">&times;</button>
+      </div>
+    </div>
+    <div class="server-modal-search">
+      <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+        <input type="text" id="serverModalSearch" placeholder="Search queue names..." style="flex: 1;" />
+        <div class="server-modal-sorts">
+          <button class="sort-btn" id="sortByNameBtn" onclick="setModalSort('name')" title="Sort by Name A-Z">Name</button>
+          <button class="sort-btn" id="sortByCountAscBtn" onclick="setModalSort('countAsc')" title="Sort by Count ↑">Count ↑</button>
+          <button class="sort-btn" id="sortByCountDescBtn" onclick="setModalSort('countDesc')" title="Sort by Count ↓">Count ↓</button>
+          <button class="sort-btn" id="sortByStatusBtn" onclick="setModalSort('status')" title="Sort by Status">Status</button>
+        </div>
+      </div>
+    </div>
+    <div class="server-modal-content" id="serverModalContent">
+      <div class="server-modal-empty">Loading queues...</div>
+    </div>
+  </div>
+</div>
+
+<script th:src="@{/js/dashboard.js}"></script>
+</body>
+</html>

@@ -1,15 +1,16 @@
 package com.integrationhub.dashboard.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
-@ConfigurationProperties(prefix = "tibco.ems")
+@ConfigurationProperties(prefix = "tibco.ems", ignoreUnknownFields = true, ignoreInvalidFields = true)
 public class TibcoEmsProperties {
 
+    private static final Logger logger = LoggerFactory.getLogger(TibcoEmsProperties.class);
     private List<Server> servers = new ArrayList<>();
 
     public List<Server> getServers() {
@@ -18,6 +19,8 @@ public class TibcoEmsProperties {
 
     public void setServers(List<Server> servers) {
         this.servers = servers;
+        logger.info("setServers() called with {} servers", servers.size());
+        servers.forEach(s -> logger.debug("  Loaded server: {} at {}:{}", s.getName(), s.getHost(), s.getPort()));
     }
 
     public static class Server {

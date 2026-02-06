@@ -1,5 +1,8 @@
 spring.application.name=dashboard
 
+# Ignore unknown or unbound configuration properties
+spring.boot.context.properties.ignore-unbound-configuration-properties=true
+
 # TIBCO EMS Servers Configuration
  Ship Servers - Adventure Class (COMMENTED OUT)
 tibco.ems.servers[4].name=AD-Adventure
@@ -198,12 +201,12 @@ tibco.ems.servers[31].username=admin
 tibco.ems.servers[31].password=adminShipPRD_OA
 tibco.ems.servers[31].ssl-enabled=false
 
-tibco.ems.servers[32].name=OA-Oasis-EMSUser
-tibco.ems.servers[32].host=oaems931.oasis.sh.rccl.com
-tibco.ems.servers[32].port=7222
-tibco.ems.servers[32].username=emsuser
-tibco.ems.servers[32].password=adminShipPRD_OA
-tibco.ems.servers[32].ssl-enabled=false
+#.ems.servers[32].name=OA-Oasis-EMSUser
+#tibco.ems.servers[32].host=oaems931.oasis.sh.rccl.com
+#tibco.ems.servers[32].port=7222
+#tibco.ems.servers[32].username=emsuser
+#tibco.ems.servers[32].password=adminShipPRD_OA
+#tibco.ems.servers[32].ssl-enabled=false
 
 tibco.ems.servers[33].name=OV-Ovation
 tibco.ems.servers[33].host=ovems931.ovation.sh.rccl.com
