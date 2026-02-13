@@ -82,10 +82,11 @@ public class TibcoEmsQueueService {
         }
 
         // Filter for critical queues (>10000 messages) and warning queues (>5000 messages)
-        // Exclude BAM queues, sort by server name
+        // Exclude BAM and FCWEB.CACHE queues, sort by server name
         List<QueueInfo> result = allQueues.stream()
                 .filter(q -> q.getStatus().equals("critical") || q.getStatus().equals("warning"))
                 .filter(q -> !q.getQueueName().toUpperCase().contains("BAM"))
+                .filter(q -> !q.getQueueName().toUpperCase().contains("FCWEB.CACHE"))
                 .sorted(Comparator.comparing(QueueInfo::getServerName)
                         .thenComparing(q -> -q.getMessageCount())) // Sort by message count descending
                 .limit(50)
@@ -112,7 +113,11 @@ public class TibcoEmsQueueService {
         mockQueues.add(new QueueInfo("TSTSH1-EMS2-ESB", "DATA.MIGRATION.QUEUE", 6789));
         mockQueues.add(new QueueInfo("TSTSH2-EMS1-ESB", "ERROR.HANDLING.QUEUE", 3156));
         mockQueues.add(new QueueInfo("TSTSH3-EMS1-ESB", "AUDIT.LOG.QUEUE", 4521));
-        return mockQueues;
+        
+        // Filter mock data to only return critical and warning queues
+        return mockQueues.stream()
+                .filter(q -> q.getStatus().equals("critical") || q.getStatus().equals("warning"))
+                .toList();
     }
 
     private String decryptPassword(String password) {
@@ -194,7 +199,9 @@ public class TibcoEmsQueueService {
                         String queueName = (String) queueInfoClass.getMethod("getName").invoke(queueInfo);
                         long messageCount = (Long) queueInfoClass.getMethod("getPendingMessageCount").invoke(queueInfo);
                         
-                        if (!filterHighVolume || messageCount > HIGH_VOLUME_THRESHOLD) {
+                        // Skip FCWEB.CACHE queues and filter by volume if needed
+                        if (!queueName.toUpperCase().contains("FCWEB.CACHE") && 
+                            (!filterHighVolume || messageCount > HIGH_VOLUME_THRESHOLD)) {
                             queues.add(new QueueInfo(
                                 server.getName(),
                                 queueName,

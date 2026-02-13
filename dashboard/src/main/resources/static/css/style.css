@@ -538,14 +538,25 @@ main{ padding:18px; }
   color: rgba(35,196,131,0.92);
   margin-top: 4px;
 }
-.server-tile-unreachable{
+.server-tile-unreachable,
+.server-tile-critical{
   background: rgba(239,68,68,0.12) !important;
   border-color: rgba(239,68,68,0.35) !important;
 }
-.server-tile-unreachable:hover{
+.server-tile-unreachable:hover,
+.server-tile-critical:hover{
   background: rgba(239,68,68,0.18) !important;
   border-color: rgba(239,68,68,0.45) !important;
   box-shadow: 0 8px 20px rgba(239,68,68,0.15) !important;
+}
+.server-tile-warning{
+  background: rgba(255,193,7,0.10) !important;
+  border-color: rgba(255,193,7,0.30) !important;
+}
+.server-tile-warning:hover{
+  background: rgba(255,193,7,0.15) !important;
+  border-color: rgba(255,193,7,0.40) !important;
+  box-shadow: 0 8px 20px rgba(255,193,7,0.15) !important;
 }
 .server-tile-status{
   font-size: 12px;

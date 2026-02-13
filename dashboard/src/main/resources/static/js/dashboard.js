@@ -5,38 +5,35 @@ let nextRefreshSeconds = 300;
 
 async function loadRealData(){
   try {
-    // Create abort controller with 3 second timeout
+    // Create abort controller with 60 second timeout (TIBCO server connections can be slow)
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
     
     const response = await fetch('/api/queues', { signal: controller.signal });
     clearTimeout(timeoutId);
     
     const data = await response.json();
-    console.log('API Response:', data);
+    console.log('🔍 RAW API Response:', data);
+    console.log(`📊 Received ${data.length} queues from API`);
     
     // Clear existing real ships
     realShips.length = 0;
     
     // Check if data is an array or has a value property
     const queues = Array.isArray(data) ? data : (data.value || []);
-    console.log(`Fetched ${queues.length} queues from API`);
+    console.log(`✅ After parsing: ${queues.length} queues`);
     
     if (queues.length === 0) {
-      console.warn('No queues returned from API');
+      console.warn('❌ No queues returned from API');
       return false;
     }
     
+    // Use all queues returned by backend since they're already filtered for critical/warning
+    const filteredQueues = queues;
+    console.log(`📋 Using all ${filteredQueues.length} queues (no filtering)`);
+    
     // Convert queue data to ship-like objects
-    queues.forEach((queue, idx) => {
-      // Skip queues with pms.fcweb.cache in the name
-      if (queue.queueName && queue.queueName.toLowerCase().includes('pms.fcweb.cache')) {
-        console.log(`Skipping filtered queue: ${queue.serverName} / ${queue.queueName}`);
-        return; // Skip this queue
-      }
-      
-      // Map status: critical->err, warning->warn, ok->ok
-      // ENSURE messageCount is a number (might come from JSON as string)
+    filteredQueues.forEach((queue, idx) => {
       const msgCount = Number(queue.messageCount) || 0;
       
       let shipStatus = 'ok';
@@ -46,10 +43,7 @@ async function loadRealData(){
         shipStatus = 'warn';
       }
       
-      // Debug: log the mapping for critical/warning queues
-      if (msgCount > 5000) {
-        console.log(`[PRIORITY QUEUE] ${queue.serverName}/${queue.queueName}: status="${queue.status}", messageCount=${msgCount} (was ${typeof queue.messageCount}: "${queue.messageCount}"), mapped to shipStatus="${shipStatus}"`);
-      }
+      console.log(`[QUEUE MAPPING #${idx}] ${queue.serverName}/${queue.queueName}: API status="${queue.status}" → shipStatus="${shipStatus}" (${msgCount} msgs)`);
       
       const now = Date.now();
       const ship = {
@@ -62,21 +56,21 @@ async function loadRealData(){
         errorRate: Math.min(100, Math.floor((queue.messageCount / 10000) * 100)),
         queue: queue.messageCount,
         latency: rand(40, 900),
-        lastEventAt: now, // Set to current time so critical queues appear in attention
+        lastEventAt: now,
         events: [
           { t: now, msg: `Queue depth: ${queue.messageCount} messages` },
           { t: now - 30000, msg: `Connected to ${queue.serverName}` },
           { t: now - 120000, msg: 'Real-time monitoring active' }
         ]
       };
-      console.log(`Queue [${shipStatus}]: ${ship.name} - ${queue.messageCount} messages`);
       realShips.push(ship);
     });
     
-    console.log(`Loaded ${realShips.length} real TIBCO EMS queues`);
+    console.log(`✅ Loaded ${realShips.length} REAL queues into realShips`);
+    console.log(`📈 Status breakdown:`, realShips.reduce((acc, s) => { acc[s.status] = (acc[s.status] || 0) + 1; return acc; }, {}));
     return true;
   } catch (err) {
-    console.warn('Failed to load real data:', err);
+    console.warn('❌ Failed to load real data:', err);
     return false;
   }
 }
@@ -265,7 +259,7 @@ async function renderServerTiles() {
     const tile = document.createElement('button');
     tile.className = 'server-tile';
     
-    // Apply red styling if server is unreachable
+    // Apply styling based on server status and queue conditions
     if (serverStatus === 'UNREACHABLE') {
       tile.classList.add('server-tile-unreachable');
       tile.innerHTML = `
@@ -273,6 +267,13 @@ async function renderServerTiles() {
         <div class="server-tile-status">unreachable!</div>
       `;
     } else {
+      // Apply critical/warning styling based on queue status
+      if (errorCount > 0) {
+        tile.classList.add('server-tile-critical');
+      } else if (warnCount > 0) {
+        tile.classList.add('server-tile-warning');
+      }
+      
       const statusIndicator = errorCount > 0 ? '🔴' : (warnCount > 0 ? '🟡' : '🟢');
       tile.innerHTML = `
         <div class="server-tile-name">${statusIndicator} ${serverName}</div>
@@ -502,6 +503,7 @@ function render(){
   // attention list = err/warn not acked, sorted by severity + recency
   const attention = ships
     .filter(s => (s.status==="err" || s.status==="warn") && !s.acked)
+    .filter(s => !q || s.name.toLowerCase().includes(q))
     .sort((a,b)=> statusWeight[b.status]-statusWeight[a.status] || b.lastEventAt-a.lastEventAt);
 
   console.log(`Building attention list: ${attention.length} items from ${ships.length} total ships`);
@@ -627,7 +629,14 @@ function renderDetails(s){
 // ---------- Interactions ----------
 searchEl.addEventListener("input", (e)=>{
   q = e.target.value.trim().toLowerCase();
+  console.log(`🔍 Search updated to: "${q}", total ships: ${ships.length}`);
   render();
+  const filtered = ships.filter(s => {
+    if (selectedServer) return s.name.split(' / ')[0] === selectedServer;
+    if(q && !s.name.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  console.log(`📊 Search filter results: ${filtered.length} ships match`);
 });
 
 btnAck.addEventListener("click", ()=>{
