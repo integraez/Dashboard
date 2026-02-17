@@ -84,7 +84,14 @@ public class TibcoEmsQueueService {
         // Filter for critical queues (>10000 messages) and warning queues (>5000 messages)
         // Exclude BAM and FCWEB.CACHE queues, sort by server name
         List<QueueInfo> result = allQueues.stream()
-                .filter(q -> q.getStatus().equals("critical") || q.getStatus().equals("warning"))
+                .filter(q -> {
+                    boolean isCriticalOrWarning = q.getStatus().equals("critical") || q.getStatus().equals("warning");
+                    if (q.getServerName().contains("SC")) {
+                        logger.info("  [SC-Spectrum Queue] {}: status={}, count={}, passes filter={}", 
+                                   q.getQueueName(), q.getStatus(), q.getMessageCount(), isCriticalOrWarning);
+                    }
+                    return isCriticalOrWarning;
+                })
                 .filter(q -> !q.getQueueName().toUpperCase().contains("BAM"))
                 .filter(q -> !q.getQueueName().toUpperCase().contains("FCWEB.CACHE"))
                 .sorted(Comparator.comparing(QueueInfo::getServerName)
@@ -113,6 +120,7 @@ public class TibcoEmsQueueService {
         mockQueues.add(new QueueInfo("TSTSH1-EMS2-ESB", "DATA.MIGRATION.QUEUE", 6789));
         mockQueues.add(new QueueInfo("TSTSH2-EMS1-ESB", "ERROR.HANDLING.QUEUE", 3156));
         mockQueues.add(new QueueInfo("TSTSH3-EMS1-ESB", "AUDIT.LOG.QUEUE", 4521));
+        mockQueues.add(new QueueInfo("SC-Spectrum", "SC.Q.AUDIT.PUBLISHMESSAGE.AUDITLOGGER", 14325));
         
         // Filter mock data to only return critical and warning queues
         return mockQueues.stream()

@@ -47,11 +47,12 @@ body {
     width: 100%;
 }
 
+/*
 .header {
     animation: headerHide 0.6s ease-out 3s forwards;
     transition: opacity 0.3s ease;
 }
-
+*/
 .container:hover .header {
     animation: none;
     opacity: 1;

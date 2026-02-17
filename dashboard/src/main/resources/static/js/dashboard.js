@@ -1,7 +1,7 @@
 // ---------- Load Real Data from API ----------
 const realShips = [];
 let autoRefreshInterval = null;
-let nextRefreshSeconds = 300;
+let nextRefreshSeconds = 1800;
 
 async function loadRealData(){
   try {
@@ -131,7 +131,7 @@ function startAutoRefresh() {
   updateRefreshTimer();
   // Update countdown every second
   const intervalId = setInterval(updateRefreshTimer, 1000);
-  console.log('✅ Auto-refresh timer started - updates every second, refreshes every 5 minutes');
+  console.log('✅ Auto-refresh timer started - updates every second, refreshes every 30 minutes');
   return intervalId;
 }
 

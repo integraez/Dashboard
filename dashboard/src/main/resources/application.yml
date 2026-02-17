@@ -25,30 +25,36 @@ server:
 tibco:
   ems:
     servers:
-      - name: TST2-ESB
+      - name: UT_TEST
         host: nlems921.nowlab.tstsh.tstrccl.com
         port: 7222
         username: admin
-        password: adminShipPRD_TS
+        password: adminShip_TST2
         ssl-enabled: false
       - name: TST2-SHORE
         host: nlems921.nowlab.tstsh.tstrccl.com
         port: 7444
         username: admin
-        password: adminShipPRD_TS
+        password: adminShore_TST2
         ssl-enabled: false
-      - name: STG3-ESB
-        host: nlems931.nowlab.tstsh.tstrccl.com
-        port: 7222
-        username: admin
-        password: adminShipPRD_ST
-        ssl-enabled: false
-      - name: STG8-ESB
+      - name: EG_STAGE
         host: nlems981.nowlab.tstsh.tstrccl.com
         port: 7222
         username: admin
-        password: adminShipPRD_ST
+        password: adminShip_STG8
         ssl-enabled: false
+      - name: AL_STAGE
+        host: nlems931.nowlab.tstsh.tstrccl.com
+        port: 7222
+        username: admin
+        password: adminShip_STG3
+        ssl-enabled: false
+      - name: EG_TST
+        host: nlems961.nowlab.tstsh.tstrccl.com
+        port: 7222
+        username: admin
+        password: adminShip_TST6
+        ssl-enabled: false  
       - name: AD-Adventure
         host: adems931.adventure.sh.rccl.com
         port: 7222
