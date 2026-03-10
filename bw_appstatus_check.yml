@@ -1,0 +1,94 @@
+---
+# Ansible playbook: Run BW AppStatusCheck on all nodes and append results to control node
+# Password suffix is derived from the first 2 letters of each host's hostname.
+# Results are appended to /tmp/bw_hawk_monitor.txt on the Ansible control node.
+
+- name: Run TIBCO BW AppStatusCheck across all nodes
+  hosts: all
+  gather_facts: true          # needed for ansible_hostname and ansible_date_time
+
+  vars:
+    bw_domain:      SHIP
+    bw_user:        admin
+    control_output: /tmp/bw_hawk_monitor.txt
+
+  tasks:
+
+    # ------------------------------------------------------------------ #
+    # 0. Remove any existing output file on the control node              #
+    # ------------------------------------------------------------------ #
+    - name: Remove existing output file on control node
+      delegate_to: localhost
+      file:
+        path: "{{ control_output }}"
+        state: absent
+      run_once: true
+      become: false
+
+    # ------------------------------------------------------------------ #
+    # 1. Derive the 2-letter password suffix from the node's hostname     #
+    # ------------------------------------------------------------------ #
+    - name: Set password suffix (first 2 letters of hostname)
+      set_fact:
+        pw_suffix: "{{ ansible_hostname[:2] | upper }}"
+
+    # ------------------------------------------------------------------ #
+    # 2. Execute AppStatusCheck on the remote node                        #
+    # ------------------------------------------------------------------ #
+    - name: Run AppStatusCheck and capture output
+      shell: >
+        ./AppStatusCheck
+        -domain {{ bw_domain }}
+        -user {{ bw_user }}
+        -pw "TAPRD_{{ pw_suffix }}"
+      args:
+        chdir: /apps/tibco/tra/5.12/bin
+      register: appstatus_result
+      changed_when: false
+      failed_when: false        # collect output even if the command exits non-zero
+
+    # ------------------------------------------------------------------ #
+    # 3. Write this host's result to a temporary file on the controller   #
+    #    (using copy avoids shell-quoting issues with arbitrary output)   #
+    # ------------------------------------------------------------------ #
+    - name: Write host result to a temp file on the control node
+      delegate_to: localhost
+      copy:
+        content: |
+          ================================================================================
+          Host      : {{ inventory_hostname }}
+          Hostname  : {{ ansible_hostname }}
+          Password  : TAPRD_{{ pw_suffix }}
+          Timestamp : {{ ansible_date_time.iso8601 }}
+          RC        : {{ appstatus_result.rc }}
+          ================================================================================
+          {{ appstatus_result.stdout }}
+          {% if appstatus_result.stderr | length > 0 %}
+          --- STDERR ---
+          {{ appstatus_result.stderr }}
+          {% endif %}
+
+        dest: "/tmp/.bw_hawk_monitor_{{ inventory_hostname }}.tmp"
+      become: false
+
+    # ------------------------------------------------------------------ #
+    # 4. Append the temp file to the shared output file on the controller #
+    # ------------------------------------------------------------------ #
+    - name: Append host result to {{ control_output }}
+      delegate_to: localhost
+      shell: |
+        cat "/tmp/.bw_hawk_monitor_{{ inventory_hostname }}.tmp" >> "{{ control_output }}"
+      args:
+        executable: /bin/bash
+      changed_when: true
+      become: false
+
+    # ------------------------------------------------------------------ #
+    # 5. Clean up the per-host temp file                                  #
+    # ------------------------------------------------------------------ #
+    - name: Remove per-host temp file
+      delegate_to: localhost
+      file:
+        path: "/tmp/.bw_hawk_monitor_{{ inventory_hostname }}.tmp"
+        state: absent
+      become: false
