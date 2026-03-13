@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Login - Integration Hub Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/home.css(v=${#dates.format(#dates.createNow(),'yyyyMMddHHmmss')})}">
+</head>
+<body class="login-page">
+<div class="container login-container">
+    <header class="header">
+        <div class="icon">🔐</div>
+        <h1>Integration Hub Login</h1>
+        <p>Please enter your user and password to continue.</p>
+    </header>
+
+    <form method="post" th:action="@{/login}" class="login-form">
+        <div class="field">
+            <label for="username">User</label>
+            <input id="username" name="username" type="text" autocomplete="username" required autofocus>
+        </div>
+        <div class="field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="btn">Sign In</button>
+    </form>
+
+    <p class="error-message" th:if="${param.error}">Invalid credentials. Please try again.</p>
+</div>
+</body>
+</html>

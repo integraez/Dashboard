@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>TIBCO BW - Application Status Monitor</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: var(--gap);
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+            transition: all 150ms ease;
+        }
+
+        .drilldown-card {
+            cursor: pointer;
+        }
+
+        a.stat-card {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .drilldown-card.active {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px var(--accent);
+            background: var(--panel2);
+        }
+        
+        .stat-card:hover {
+            background: var(--panel2);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+        }
+        
+        .stat-value {
+            font-size: 36px;
+            font-weight: 900;
+            margin: 8px 0;
+            color: var(--text);
+        }
+        
+        .stat-card.running .stat-value { color: var(--ok); }
+        .stat-card.stopped .stat-value { color: var(--err); }
+        .stat-card.other .stat-value { color: var(--accent); }
+        
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--muted);
+        }
+        
+        .filter-panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-panel select,
+        .filter-panel input {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .filter-panel select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            min-width: 170px;
+            padding-right: 34px;
+            cursor: pointer;
+            color-scheme: dark;
+            background-image:
+                linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+                linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+            background-position:
+                calc(100% - 16px) calc(50% - 2px),
+                calc(100% - 10px) calc(50% - 2px);
+            background-size: 6px 6px, 6px 6px;
+            background-repeat: no-repeat;
+        }
+
+        .filter-panel select option {
+            background: var(--bg1);
+            color: var(--text);
+        }
+        
+        .filter-panel select:focus,
+        .filter-panel input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(255,255,255,0.12);
+        }
+        
+        .filter-panel input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .status-description {
+            color: var(--muted);
+            font-size: 12px;
+            margin: 6px 2px 0;
+        }
+        
+        .app-table-container {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .app-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .app-table thead {
+            background: rgba(255,255,255,0.05);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .app-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+        
+        .app-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            color: var(--text);
+            font-size: 14px;
+        }
+        
+        .app-table tbody tr {
+            transition: all 120ms ease;
+        }
+        
+        .app-table tbody tr:hover {
+            background: rgba(255,255,255,0.04);
+        }
+        
+        .app-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            display: inline-block;
+        }
+        
+        .status-badge.running {
+            background: rgba(35,196,131,0.15);
+            color: var(--ok);
+            border: 1px solid rgba(35,196,131,0.3);
+        }
+        
+        .status-badge.stopped {
+            background: rgba(255,87,87,0.15);
+            color: var(--err);
+            border: 1px solid rgba(255,87,87,0.3);
+        }
+        
+        .status-badge.unknown {
+            background: rgba(255,193,7,0.15);
+            color: var(--warn);
+            border: 1px solid rgba(255,193,7,0.3);
+        }
+
+        .status-badge.other {
+            background: rgba(124,92,255,0.15);
+            color: var(--accent);
+            border: 1px solid rgba(124,92,255,0.3);
+        }
+        
+        .loading-msg {
+            text-align: center;
+            padding: 40px;
+            color: var(--muted);
+        }
+        
+        .error-msg {
+            text-align: center;
+            padding: 40px;
+            color: var(--err);
+        }
+
+        .app-table th.sortable {
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .app-table th.sortable:hover {
+            color: var(--text);
+        }
+
+        .sort-icon {
+            display: inline-block;
+            margin-left: 5px;
+            opacity: 0.35;
+            font-size: 10px;
+        }
+
+        .app-table th.sort-asc .sort-icon,
+        .app-table th.sort-desc .sort-icon {
+            opacity: 1;
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="topbar">
+        <div class="title"><span class="badge">BW Apps</span> TIBCO Application Status Monitor</div>
+        <div class="hint">File-based monitoring • Auto-refresh every 30 Minutes • Filter by ship & status • <span id="nextRefresh">Loading...</span></div>
+        <div style="display:flex; gap:8px;">
+            <button class="refresh-btn" onclick="loadData()">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 8c0-3.3-2.7-6-6-6-2.4 0-4.4 1.4-5.4 3.4M2 8c0 3.3 2.7 6 6 6 2.4 0 4.4-1.4 5.4-3.4M14 4v4h-4M2 12v-4h4"/>
+                </svg>
+                Refresh Now
+            </button>
+            <button class="back-btn" onclick="window.location.href='/'">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10 12L6 8l4-4"/>
+                </svg>
+                Back to Home
+            </button>
+        </div>
+    </div>
+</header>
+
+<main>
+    <section class="layout" style="max-width: 1600px; margin: 0 auto; padding: 18px;">
+        
+        <!-- SUMMARY PANEL -->
+        <div class="panel">
+            <div class="panel-head">
+                <h2>Application Summary</h2>
+                <div class="sub"><span id="lastUpdate">Loading...</span></div>
+            </div>
+            <div class="summary-grid">
+                <a class="stat-card drilldown-card" id="totalTile" title="Show all applications" th:classappend="${selectedStatus == ''} ? ' active'" th:href="@{/hawk/monitor}">
+                    <div class="stat-label">Total Applications</div>
+                    <div class="stat-value" id="totalApps" th:text="${totalApplications}">-</div>
+                </a>
+                <a class="stat-card running drilldown-card" id="runningTile" title="Show running applications" th:classappend="${selectedStatus == 'running'} ? ' active'" th:href="@{/hawk/monitor(status='running')}">
+                    <div class="stat-label">Running</div>
+                    <div class="stat-value" id="runningApps" th:text="${runningApplications}">-</div>
+                </a>
+                <a class="stat-card stopped drilldown-card" id="stoppedTile" title="Show stopped applications" th:classappend="${selectedStatus == 'stopped'} ? ' active'" th:href="@{/hawk/monitor(status='stopped')}">
+                    <div class="stat-label">Stopped</div>
+                    <div class="stat-value" id="stoppedApps" th:text="${stoppedApplications}">-</div>
+                </a>
+                <a class="stat-card other drilldown-card" id="otherTile" title="Show applications in other states" th:classappend="${selectedStatus == 'other'} ? ' active'" th:href="@{/hawk/monitor(status='other')}">
+                    <div class="stat-label">Other</div>
+                    <div class="stat-value" id="otherApps" th:text="${otherApplications}">-</div>
+                </a>
+                <div class="stat-card">
+                    <div class="stat-label">Number of Domains</div>
+                    <div class="stat-value" id="totalDomains" th:text="${totalShips}">-</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILTERS & SEARCH -->
+        <div class="filter-panel">
+            <select id="domainFilter">
+                <option value="">All Ships</option>
+            </select>
+            <select id="statusFilter">
+                <option value="" th:selected="${selectedStatus == ''}">All Statuses</option>
+                <option value="running" th:selected="${selectedStatus == 'running'}">Running</option>
+                <option value="stopped" th:selected="${selectedStatus == 'stopped'}">Stopped</option>
+                <option value="other" th:selected="${selectedStatus == 'other'}">Other</option>
+            </select>
+            <input type="text" id="searchBox" placeholder="Search by application, service, or instance..." autocomplete="off">
+            <div class="status-description" id="statusDescription" th:text="${statusDescription}">Showing 0 services across all statuses.</div>
+        </div>
+
+        <!-- APPLICATIONS TABLE -->
+        <div class="panel" id="applicationsPanel">
+            <div class="panel-head">
+                <h2>Applications Status</h2>
+                <div class="sub">Showing <span id="visibleCount">0</span> of <span id="totalCount">0</span> applications</div>
+            </div>
+            <div class="app-table-container">
+                <table class="app-table">
+                    <thead>
+                        <tr id="appTableHeaders">
+                            <th class="sortable" data-col="ship">Ship <span class="sort-icon">&#8693;</span></th>
+                            <th class="sortable" data-col="agentName">Service Name <span class="sort-icon">&#8693;</span></th>
+                            <th class="sortable" data-col="applicationName">Application <span class="sort-icon">&#8693;</span></th>
+                            <th class="sortable" data-col="host">Machine <span class="sort-icon">&#8693;</span></th>
+                            <th class="sortable" data-col="status">Status <span class="sort-icon">&#8693;</span></th>
+                            <th class="sortable" data-col="instance">Instance <span class="sort-icon">&#8693;</span></th>
+                            <th class="sortable" data-col="version">Deployment <span class="sort-icon">&#8693;</span></th>
+                            <th class="sortable" data-col="timestamp">Last Updated <span class="sort-icon">&#8693;</span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="appTableBody">
+                        <tr th:if="${initialApplications != null and !initialApplications.isEmpty()}" th:each="app : ${initialApplications}">
+                            <td th:text="${app.host != null and !#strings.isEmpty(app.host) ? (#strings.length(app.host) >= 2 ? #strings.toUpperCase(#strings.substring(app.host, 0, 2)) : #strings.toUpperCase(app.host)) : '-'}">-</td>
+                            <td th:text="${app.agentName ?: '-'}">-</td>
+                            <td th:text="${app.applicationName ?: '-'}">-</td>
+                            <td th:text="${app.host ?: '-'}">-</td>
+                            <td>
+                                <span class="status-badge" th:classappend="${app.status != null and (#strings.containsIgnoreCase(app.status, 'UNKNOWN') or #strings.containsIgnoreCase(app.status, 'STANDBY'))} ? ' unknown' : (${app.running} ? ' running' : (${app.status != null and #strings.containsIgnoreCase(app.status, 'STOPPED')} ? ' stopped' : ' other'))" th:text="${app.status ?: 'UNKNOWN'}">UNKNOWN</span>
+                            </td>
+                            <td th:text="${(app.microAgentName != null and !#strings.isEmpty(app.microAgentName)) ? app.microAgentName : ((app.processId != null and !#strings.isEmpty(app.processId)) ? app.processId : '-')}">-</td>
+                            <td th:text="${app.version ?: '-'}">-</td>
+                            <td th:text="${app.timestamp}">-</td>
+                        </tr>
+                        <tr th:if="${initialApplications == null or initialApplications.isEmpty()}">
+                            <td colspan="8" class="loading-msg">Loading applications...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SERVICES TABLE -->
+        <div class="panel" id="servicesPanel">
+            <div class="panel-head">
+                <h2>Service Status</h2>
+                <div class="sub">Showing <span id="serviceVisibleCount">0</span> services</div>
+            </div>
+            <div class="app-table-container">
+                <table class="app-table">
+                    <thead>
+                        <tr>
+                            <th>Service Name</th>
+                            <th>Application</th>
+                            <th>Machine</th>
+                            <th>Status</th>
+                            <th>Instance</th>
+                            <th>Deployment</th>
+                        </tr>
+                    </thead>
+                    <tbody id="serviceTableBody">
+                        <tr th:if="${initialApplications != null and !initialApplications.isEmpty()}" th:each="app : ${initialApplications}">
+                            <td th:text="${app.agentName ?: '-'}">-</td>
+                            <td th:text="${app.applicationName ?: '-'}">-</td>
+                            <td th:text="${app.host ?: '-'}">-</td>
+                            <td>
+                                <span class="status-badge" th:classappend="${app.status != null and (#strings.containsIgnoreCase(app.status, 'UNKNOWN') or #strings.containsIgnoreCase(app.status, 'STANDBY'))} ? ' unknown' : (${app.running} ? ' running' : (${app.status != null and #strings.containsIgnoreCase(app.status, 'STOPPED')} ? ' stopped' : ' other'))" th:text="${app.status ?: 'UNKNOWN'}">UNKNOWN</span>
+                            </td>
+                            <td th:text="${(app.microAgentName != null and !#strings.isEmpty(app.microAgentName)) ? app.microAgentName : ((app.processId != null and !#strings.isEmpty(app.processId)) ? app.processId : '-')}">-</td>
+                            <td th:text="${app.version ?: '-'}">-</td>
+                        </tr>
+                        <tr th:if="${initialApplications == null or initialApplications.isEmpty()}">
+                            <td colspan="6" class="loading-msg">Loading services...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </section>
+</main>
+
+    <script th:inline="javascript">
+        let allApplications = /*[[${allApplicationsData}]]*/ [];
+        let refreshInterval;
+        let countdownInterval;
+        let nextRefreshTime;
+        let sortCol = null;
+        let sortDir = 'asc';
+
+        
+        function loadData() {
+            fetch('/hawk/api/applications')
+                .then(response => {
+                    if (response.status === 401) {
+                        globalThis.location.href = '/login';
+                        throw new Error('Unauthorized');
+                    }
+                    if (!response.ok) {
+                        throw new Error(`Applications API error: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (Array.isArray(data) && data.length > 0) {
+                        allApplications = data;
+                        updateSummary();
+                        updateDomainFilter();
+                        renderTable();
+                        updateLastUpdate();
+                        resetRefreshCountdown();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading data:', error);
+                    const tbody = document.getElementById('appTableBody');
+                    const hasDataRows = tbody && tbody.querySelectorAll('tr').length > 0;
+                    if (!hasDataRows) {
+                        document.getElementById('appTableBody').innerHTML =
+                            '<tr><td colspan="8" style="text-align: center; color: red;">Error loading data. Please login again or check API response.</td></tr>';
+                    }
+                });
+            
+            fetch('/hawk/api/summary')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Summary API error: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(summary => {
+                    document.getElementById('totalApps').textContent = summary.totalApplications || 0;
+                    document.getElementById('runningApps').textContent = summary.runningApplications || 0;
+                    document.getElementById('stoppedApps').textContent = summary.stoppedApplications || 0;
+                    document.getElementById('otherApps').textContent = summary.otherApplications || 0;
+                })
+                .catch(error => console.error('Error loading summary:', error));
+        }
+        
+        function updateSummary() {
+            const total = allApplications.length;
+            let running = 0;
+            let stopped = 0;
+            let other = 0;
+
+            allApplications.forEach(app => {
+                const bucket = getStatusBucket(app);
+                if (bucket === 'running') {
+                    running += 1;
+                } else if (bucket === 'stopped') {
+                    stopped += 1;
+                } else {
+                    other += 1;
+                }
+            });
+            
+            const ships = new Set(allApplications
+                .map(app => getShipName(app))
+                .filter(s => s && s !== '-'));
+
+            document.getElementById('totalApps').textContent = total;
+            document.getElementById('runningApps').textContent = running;
+            document.getElementById('stoppedApps').textContent = stopped;
+            document.getElementById('otherApps').textContent = other;
+            document.getElementById('totalDomains').textContent = ships.size;
+        }
+        
+        function updateDomainFilter() {
+            const ships = [...new Set(allApplications
+                .map(app => getShipName(app))
+                .filter(ship => ship && ship !== '-'))];
+            const domainFilter = document.getElementById('domainFilter');
+            const currentValue = domainFilter.value;
+            
+            domainFilter.innerHTML = '<option value="">All Ships</option>';
+            ships.forEach(ship => {
+                const option = document.createElement('option');
+                option.value = ship;
+                option.textContent = ship;
+                domainFilter.appendChild(option);
+            });
+            
+            domainFilter.value = currentValue;
+        }
+        
+        function renderTable() {
+            if (!Array.isArray(allApplications) || allApplications.length === 0) {
+                return;
+            }
+            const domainFilter = document.getElementById('domainFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const searchText = document.getElementById('searchBox').value.toLowerCase();
+            
+            let filtered = allApplications.filter(app => {
+                if (domainFilter && getShipName(app) !== domainFilter) return false;
+                const bucket = getStatusBucket(app);
+                if (statusFilter && bucket !== statusFilter) return false;
+                const applicationName = (app.applicationName || '').toLowerCase();
+                const serviceName = (app.agentName || '').toLowerCase();
+                const instanceName = (app.microAgentName || app.processId || '').toLowerCase();
+                if (searchText && !applicationName.includes(searchText) &&
+                    !serviceName.includes(searchText) &&
+                    !instanceName.includes(searchText)) return false;
+                return true;
+            });
+            
+            const tbody = document.getElementById('appTableBody');
+            document.getElementById('visibleCount').textContent = filtered.length;
+            document.getElementById('totalCount').textContent = allApplications.length;
+            updateStatusDescription(filtered.length, statusFilter);
+            
+            if (filtered.length === 0) {
+                const hasFilters = domainFilter || statusFilter || searchText;
+                const message = hasFilters
+                    ? 'No applications match current filters. Clear Ship/Status/Search filters.'
+                    : 'No applications available from API response.';
+                tbody.innerHTML = `<tr><td colspan="8" class="loading-msg">${message}</td></tr>`;
+                renderServiceTable([]);
+                return;
+            }
+            
+            const sorted = sortData(filtered);
+            updateSortHeaders();
+
+            tbody.innerHTML = sorted.map(app => `
+                <tr>
+                    <td>${getShipName(app)}</td>
+                    <td>${app.agentName || '-'}</td>
+                    <td>${app.applicationName || '-'}</td>
+                    <td>${app.host || '-'}</td>
+                    <td>
+                        <span class="status-badge ${getStatusClass(app)}">
+                            ${app.status || 'UNKNOWN'}
+                        </span>
+                    </td>
+                    <td>${app.microAgentName || app.processId || '-'}</td>
+                    <td>${app.version || '-'}</td>
+                    <td>${formatDate(app.timestamp)}</td>
+                </tr>
+            `).join('');
+
+            renderServiceTable(sorted);
+        }
+
+        function getSortValue(app, col) {
+            switch (col) {
+                case 'ship':            return getShipName(app);
+                case 'agentName':       return (app.agentName || '').toLowerCase();
+                case 'applicationName': return (app.applicationName || '').toLowerCase();
+                case 'host':            return (app.host || '').toLowerCase();
+                case 'status':          return (app.status || '').toLowerCase();
+                case 'instance':        return (app.microAgentName || app.processId || '').toLowerCase();
+                case 'version':         return (app.version || '').toLowerCase();
+                case 'timestamp':       return app.timestamp ? new Date(app.timestamp).getTime() : 0;
+                default:                return '';
+            }
+        }
+
+        function sortData(data) {
+            if (!sortCol) return data;
+            return [...data].sort((a, b) => {
+                const va = getSortValue(a, sortCol);
+                const vb = getSortValue(b, sortCol);
+                let cmp = 0;
+                if (typeof va === 'number' && typeof vb === 'number') {
+                    cmp = va - vb;
+                } else {
+                    cmp = String(va).localeCompare(String(vb));
+                }
+                return sortDir === 'asc' ? cmp : -cmp;
+            });
+        }
+
+        function updateSortHeaders() {
+            document.querySelectorAll('#appTableHeaders th.sortable').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+                const icon = th.querySelector('.sort-icon');
+                if (icon) icon.innerHTML = '&#8693;';
+                if (th.dataset.col === sortCol) {
+                    th.classList.add(sortDir === 'asc' ? 'sort-asc' : 'sort-desc');
+                    if (icon) icon.innerHTML = sortDir === 'asc' ? '&#9650;' : '&#9660;';
+                }
+            });
+        }
+
+        function renderServiceTable(filtered) {
+            const tbody = document.getElementById('serviceTableBody');
+            const countElement = document.getElementById('serviceVisibleCount');
+            if (!tbody || !countElement) return;
+
+            countElement.textContent = filtered.length;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="loading-msg">No services available for selected filters.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(app => `
+                <tr>
+                    <td>${app.agentName || '-'}</td>
+                    <td>${app.applicationName || '-'}</td>
+                    <td>${app.host || '-'}</td>
+                    <td>
+                        <span class="status-badge ${getStatusClass(app)}">
+                            ${app.status || 'UNKNOWN'}
+                        </span>
+                    </td>
+                    <td>${app.microAgentName || app.processId || '-'}</td>
+                    <td>${app.version || '-'}</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStatusDescription(count, statusFilter) {
+            const descriptionElement = document.getElementById('statusDescription');
+            if (!descriptionElement) return;
+            if (statusFilter === 'running') {
+                descriptionElement.textContent = `Showing ${count} running/standby services.`;
+            } else if (statusFilter === 'stopped') {
+                descriptionElement.textContent = `Showing ${count} stopped/unknown services.`;
+            } else if (statusFilter === 'other') {
+                descriptionElement.textContent = `Showing ${count} services in other states.`;
+            } else {
+                descriptionElement.textContent = `Showing ${count} services across all statuses.`;
+            }
+        }
+
+        function normalizeStatus(value) {
+            return (value || '').toString().trim().toUpperCase();
+        }
+
+        function getStatusBucket(app) {
+            const status = normalizeStatus(app.status);
+            if (app.running || status === 'RUNNING' || status === 'STANDBY' || status === 'SUCCESS') {
+                return 'running';
+            }
+            if (status === 'STOPPED' || status === 'UNKNOWN') {
+                return 'stopped';
+            }
+            return 'other';
+        }
+
+        function getStatusClass(app) {
+            const status = normalizeStatus(app.status);
+            if (status === 'UNKNOWN' || status === 'STANDBY') return 'unknown';
+            const bucket = getStatusBucket(app);
+            if (bucket === 'running') return 'running';
+            if (bucket === 'other') return 'other';
+            return 'stopped';
+        }
+
+        function getShipCode(machineName) {
+            const value = (machineName || '').toString().trim();
+            if (!value) return '-';
+            return value.substring(0, 2).toUpperCase();
+        }
+
+        function getShipName(app) {
+            const hostShip = getShipCode(app ? app.host : '');
+            if (hostShip !== '-') return hostShip;
+            const application = (app && app.applicationName ? app.applicationName : '').toString().trim();
+            if (!application) return '-';
+            const shipFromApplication = application.split('/')[0];
+            return shipFromApplication ? shipFromApplication.trim().toUpperCase() : '-';
+        }
+        
+        function formatUptime(uptime) {
+            if (!uptime) return '-';
+            const seconds = Math.floor(uptime / 1000);
+            const days = Math.floor(seconds / 86400);
+            const hours = Math.floor((seconds % 86400) / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            
+            if (days > 0) return `${days}d ${hours}h`;
+            if (hours > 0) return `${hours}h ${minutes}m`;
+            return `${minutes}m`;
+        }
+        
+        function formatDate(timestamp) {
+            if (!timestamp) return '-';
+            const date = new Date(timestamp);
+            return date.toLocaleString();
+        }
+        
+        function updateLastUpdate() {
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = 'Last updated: ' + now.toLocaleTimeString();
+        }
+        
+        function resetRefreshCountdown() {
+            nextRefreshTime = Date.now() + 1800000; // 30 minutes from now
+            if (countdownInterval) clearInterval(countdownInterval);
+            
+            countdownInterval = setInterval(() => {
+                const remaining = Math.max(0, Math.ceil((nextRefreshTime - Date.now()) / 1000));
+                const minutes = Math.floor(remaining / 60);
+                const seconds = remaining % 60;
+                document.getElementById('nextRefresh').textContent = 
+                    `Next refresh in ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (remaining === 0) {
+                    clearInterval(countdownInterval);
+                }
+            }, 100);
+        }
+        
+        // Event listeners
+        document.getElementById('domainFilter').addEventListener('change', renderTable);
+        document.getElementById('statusFilter').addEventListener('change', renderTable);
+        document.getElementById('searchBox').addEventListener('input', renderTable);
+
+        // Column sort listeners
+        document.querySelectorAll('#appTableHeaders th.sortable').forEach(th => {
+            th.addEventListener('click', () => {
+                const col = th.dataset.col;
+                if (sortCol === col) {
+                    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+                } else {
+                    sortCol = col;
+                    sortDir = 'asc';
+                }
+                renderTable();
+            });
+        });
+
+        // Ensure stale browser state does not hide rows on initial load
+        document.getElementById('searchBox').value = '';
+        renderTable();
+        
+        // Auto-refresh every 30 seconds
+        refreshInterval = setInterval(loadData, 1800000);
+        
+        // Initial load
+        loadData();
+    </script>
+</body>
+</html>

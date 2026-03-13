@@ -1,0 +1,22 @@
+[
+  {
+    "duplicate_processes": "BW_OrderService, BW_InvoiceService",
+    "server": "adbw931"
+  },
+  {
+    "duplicate_processes": "BW_OrderService",
+    "server": "albw931"
+  },
+  {
+    "duplicate_processes": "no duplicates",
+    "server": "anbw931"
+  },
+  {
+    "duplicate_processes": "BW_InvoiceService | BW_PaymentService",
+    "server": "atbw931"
+  },
+  {
+    "duplicate_processes": "BW_PaymentService",
+    "server": "axbw931"
+  }
+]

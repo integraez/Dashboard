@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>TIBCO Process Monitor</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .layout > .panel:last-child {
+            display: block;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        .no-duplicates-container {
+            min-height: 300px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .no-duplicates-box {
+            padding: 18px 28px;
+            border-radius: 14px;
+            border: 1px solid rgba(35,196,131,0.45);
+            background: rgba(35,196,131,0.22);
+            color: #dcffec;
+            font-weight: 700;
+            font-size: 16px;
+            text-align: center;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+        }
+
+        .process-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .process-table thead {
+            background: rgba(255,255,255,0.05);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .process-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .process-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            color: var(--text);
+            font-size: 14px;
+            vertical-align: top;
+        }
+
+        .process-table tbody tr:hover {
+            background: rgba(255,255,255,0.04);
+        }
+
+        .process-table tbody tr.duplicate-row {
+            background: rgba(255,87,87,0.20);
+        }
+
+        .process-table tbody tr.duplicate-row td {
+            border-bottom: 1px solid rgba(255,87,87,0.36);
+        }
+
+        .process-table tbody tr.duplicate-row:hover {
+            background: rgba(255,87,87,0.30);
+        }
+
+        .host-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .host-chip {
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 12px;
+            border: 1px solid rgba(124,92,255,0.35);
+            background: rgba(124,92,255,0.15);
+        }
+
+        .status-msg {
+            text-align: center;
+            padding: 32px;
+            color: var(--muted);
+        }
+
+        .status-msg.error {
+            color: var(--err);
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="topbar">
+        <div class="title"><span class="badge">Operations</span> TIBCO Process Monitor</div>
+        <div class="hint">Duplicate services by host • Auto-refresh every 30 minutes • <span id="nextRefresh">Next refresh in 30:00</span></div>
+        <div style="display:flex; gap:8px;">
+            <button class="refresh-btn" onclick="loadDuplicateProcesses()">Refresh</button>
+            <button class="back-btn" onclick="window.location.href=homeUrl">Back to Home</button>
+        </div>
+    </div>
+</header>
+
+<main>
+    <section class="layout" style="max-width: 1400px; margin: 0 auto; padding: 18px;">
+        <div class="panel">
+            <div class="panel-head">
+                <h2>Duplicated processes by Ship</h2>
+                <div class="sub">
+                    <span id="summaryCount" th:text="${duplicates != null ? #lists.size(duplicates) : 0}">0</span> duplicated processes by ship found
+                </div>
+            </div>
+
+            <div class="table-wrap" id="duplicatesTableWrap" th:style="${dataError == null and (#lists.isEmpty(duplicates) or duplicates == null)} ? 'display:none;' : 'display:block;'">
+                <table class="process-table">
+                    <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Host Count</th>
+                        <th>Hostnames</th>
+                    </tr>
+                    </thead>
+                    <tbody id="duplicateTableBody">
+                    <tr th:if="${dataError != null}">
+                        <td colspan="3" class="status-msg error" th:text="${dataError}">Unable to load duplicate process data</td>
+                    </tr>
+                    <tr th:each="item : ${duplicates}" th:if="${dataError == null and duplicates != null}" data-server-row="true" class="duplicate-row">
+                        <td th:text="${item.processName}">-</td>
+                        <td th:text="${item.hostCount}">0</td>
+                        <td>
+                            <ul class="host-list">
+                                <li class="host-chip" th:each="host : ${item.hostnames}" th:text="${host}">host</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="noDuplicatesContainer" class="no-duplicates-container" th:style="${dataError == null and (#lists.isEmpty(duplicates) or duplicates == null)} ? 'display:flex;' : 'display:none;'">
+                <div id="noDuplicatesBox" class="no-duplicates-box">No Duplicate Services found</div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script th:inline="javascript">
+    const duplicatesApiUrl = /*[[@{/tibco-process-monitor/api/duplicates}]]*/ '/tibco-process-monitor/api/duplicates';
+    const homeUrl = /*[[@{/}]]*/ '/';
+    const initialDuplicates = /*[[${duplicates}]]*/ [];
+    const initialDataError = /*[[${dataError}]]*/ null;
+    const AUTO_REFRESH_SECONDS = 30 * 60;
+    let nextRefreshSeconds = AUTO_REFRESH_SECONDS;
+
+    function renderRows(duplicates) {
+        const tableBody = document.getElementById('duplicateTableBody');
+        const summaryCount = document.getElementById('summaryCount');
+        summaryCount.textContent = duplicates.length;
+
+        if (!duplicates.length) {
+            tableBody.innerHTML = '';
+            setNoDuplicatesState(true);
+            return;
+        }
+
+        setNoDuplicatesState(false);
+
+        tableBody.innerHTML = duplicates.map(item => {
+            const hosts = (item.hostnames || []).map(host => `<li class="host-chip">${host}</li>`).join('');
+            return `
+                <tr class="duplicate-row">
+                    <td>${item.processName || '-'}</td>
+                    <td>${item.hostCount || 0}</td>
+                    <td><ul class="host-list">${hosts}</ul></td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function renderError(message) {
+        const tableBody = document.getElementById('duplicateTableBody');
+        setNoDuplicatesState(false);
+        const hasServerRows = tableBody.querySelector('tr[data-server-row="true"]') !== null;
+        if (hasServerRows) {
+            return;
+        }
+        document.getElementById('summaryCount').textContent = '0';
+        tableBody.innerHTML = `<tr><td colspan="3" class="status-msg error">${message}</td></tr>`;
+    }
+
+    function setNoDuplicatesState(show) {
+        const tableWrap = document.getElementById('duplicatesTableWrap');
+        const noDuplicatesContainer = document.getElementById('noDuplicatesContainer');
+        if (!tableWrap || !noDuplicatesContainer) {
+            return;
+        }
+
+        tableWrap.style.display = show ? 'none' : 'block';
+        noDuplicatesContainer.style.display = show ? 'flex' : 'none';
+    }
+
+    function loadDuplicateProcesses() {
+        fetch(duplicatesApiUrl, {
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+            .then(async response => {
+                const contentType = response.headers.get('content-type') || '';
+                if (!contentType.includes('application/json')) {
+                    if (response.status === 401 || response.status === 403) {
+                        throw new Error('Session expired. Please login again.');
+                    }
+                    throw new Error(`Unexpected response from server (${response.status}).`);
+                }
+
+                const body = await response.json();
+                if (!response.ok) {
+                    throw new Error(body.message || 'Failed to load duplicate process data');
+                }
+                if (!Array.isArray(body)) {
+                    throw new Error('Invalid response format for duplicate process data.');
+                }
+                return body;
+            })
+            .then(renderRows)
+            .catch(error => {
+                renderError(error.message || 'Unable to load duplicate process data');
+            })
+            .finally(() => {
+                resetRefreshTimer();
+            });
+    }
+
+    function updateRefreshTimer() {
+        const timer = document.getElementById('nextRefresh');
+        if (!timer) {
+            return;
+        }
+
+        const minutes = Math.floor(nextRefreshSeconds / 60);
+        const seconds = nextRefreshSeconds % 60;
+        timer.textContent = `Next refresh in ${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+        nextRefreshSeconds--;
+        if (nextRefreshSeconds < 0) {
+            nextRefreshSeconds = AUTO_REFRESH_SECONDS;
+            loadDuplicateProcesses();
+        }
+    }
+
+    function resetRefreshTimer() {
+        nextRefreshSeconds = AUTO_REFRESH_SECONDS;
+    }
+
+    function startAutoRefresh() {
+        updateRefreshTimer();
+        setInterval(updateRefreshTimer, 1000);
+    }
+
+    function bootstrapFromServerModel() {
+        if (initialDataError) {
+            renderError(initialDataError);
+            return;
+        }
+        if (Array.isArray(initialDuplicates) && initialDuplicates.length > 0) {
+            renderRows(initialDuplicates);
+            return;
+        }
+
+        const tableBody = document.getElementById('duplicateTableBody');
+        if (tableBody) {
+            tableBody.innerHTML = '';
+        }
+        setNoDuplicatesState(true);
+        document.getElementById('summaryCount').textContent = '0';
+    }
+
+    bootstrapFromServerModel();
+    startAutoRefresh();
+</script>
+</body>
+</html>

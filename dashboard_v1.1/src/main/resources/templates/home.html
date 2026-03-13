@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Integration Hub Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/home.css(v=${#dates.format(#dates.createNow(),'yyyyMMddHHmmss')})}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <!--
+            <div class="badge">Integration Dashboard</div>
+        -   -->
+            <div class="icon">🛳️</div>
+            <h1>Integration Hub Dashboard</h1>
+            <p>Welcome to your Integration Management Dashboard</p>
+            <div class="status">✓ System Online</div><br/>
+        </header>
+        <a href="/dashboard" class="btn">📊 View EMS Queue Dashboard</a>
+        <a href="https://www.google.com" target="_blank" class="btn"> 🔐 Certificate Management</a><br/>
+        <a href="/hawk/monitor" class="btn"> ⏰ BW Application Status</a>
+        <a href="/endpoints-ship" class="btn"> 🛳️ Endpoint Monitor</a><br/>
+        <a href="/tibco-process-monitor" class="btn">Tibco Process Monitor</a><br/>
+        <a href="/logout" class="btn">🚪 Logout</a>
+    </div>
+</body>
+</html>

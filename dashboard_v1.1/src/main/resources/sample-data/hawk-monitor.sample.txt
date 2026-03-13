@@ -1,0 +1,329 @@
+Application Name: STG81/Loyalty/LoyaltyServices
+    Service Name: CheckEntitlement.par
+    Deployment Status: Success
+        Service Instance Name: CheckEntitlement-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: CheckEntitlement-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+    Service Name: RedeemEntitlement.par
+    Deployment Status: Success
+        Service Instance Name: RedeemEntitlement-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: RedeemEntitlement-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+
+Application Name: STG81/Loyalty/Loyalty
+    Service Name: ToVoyage.par
+    Deployment Status: Success
+        Service Instance Name: ToLoyalty-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: ToLoyalty-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+
+Application Name: STG81/VoyageData/FinancialServices
+    Service Name: FinancialServices.par
+    Deployment Status: Success
+        Service Instance Name: FinancialServices-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: FinancialServices-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+
+Application Name: STG81/VoyageData/FolioServices
+    Service Name: FromVoyageData.par
+    Deployment Status: Success
+        Service Instance Name: FolioServices-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: FolioServices-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+
+Application Name: STG81/TPG/TPG
+    Service Name: TPG.par
+    Deployment Status: Success
+        Service Instance Name: TPG-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: TPG-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+    Service Name: TPGRestService.par
+    Deployment Status: Success
+        Service Instance Name: TPGRestService-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: TPGRestService-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+
+Application Name: STG81/SystemMonitor/SystemMonitor
+    Service Name: SystemMonitor.par
+    Deployment Status: Success
+        Service Instance Name: SystemMonitor-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: SystemMonitor-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+
+Application Name: STG81/NCP/NCP
+    Service Name: ToVoyage.par
+    Deployment Status: Success
+        Service Instance Name: ToNCP-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: ToNCP-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Stopped
+
+Application Name: STG81/ManifestCache/ManifestCachePicture
+    Service Name: ToManifestCache_Picture.par
+    Deployment Status: Success
+        Service Instance Name: ToManifestCachePicture-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: ToManifestCachePicture-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+
+Application Name: STG81/ManifestCache/ManifestCache
+    Service Name: ToManifestCache.par
+    Deployment Status: Success
+        Service Instance Name: ToManifestCache-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: ToManifestCache-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+    Service Name: GuestLookUp.par
+    Deployment Status: Success
+        Service Instance Name: GuestLookUp-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: GuestLookUp-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+
+Application Name: STG81/Fidelio/FidelioPicture
+    Service Name: FromFidelio_Picture.par
+    Deployment Status: Success
+        Service Instance Name: FromFidelio_Picture-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: FromFidelio_Picture-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+
+Application Name: STG81/Fidelio/Fidelio
+    Service Name: FromFidelio.par
+    Deployment Status: Success
+        Service Instance Name: FromFidelio-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: FromFidelio-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+    Service Name: ToFidelio.par
+    Deployment Status: Success
+        Service Instance Name: ToFidelio-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: ToFidelio-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+    Service Name: ToFidelio_PostCharge.par
+    Deployment Status: Success
+        Service Instance Name: ToFidelio_PostCharge-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: ToFidelio_PostCharge-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+    Service Name: FromFCWebFidelio.par
+    Deployment Status: Success
+        Service Instance Name: FromFCWebFidelio-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: FromFCWebFidelio-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+
+Application Name: STG81/EMail/EmailService
+    Service Name: ProcessArchive.par
+    Deployment Status: Success
+        Service Instance Name: EmailProcessArchive-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: EmailProcessArchive-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+
+Application Name: STG81/Dashboard/Dashboard
+    Service Name: ToDashboard.par
+    Deployment Status: Success
+        Service Instance Name: ToDashboard-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: ToDashboard-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+    Service Name: DashboardService.par
+    Deployment Status: Success
+        Service Instance Name: DashboardService-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: DashboardService-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+
+Application Name: STG81/Common/FolioConversion
+    Service Name: FolioConversion.par
+    Deployment Status: Success
+        Service Instance Name: FolioConversion-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: FolioConversion-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+
+Application Name: STG81/Common/CommonErrorHandler
+    Service Name: CommonErrorHandler.par
+    Deployment Status: Success
+        Service Instance Name: CommonErrorHandler-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: CommonErrorHandler-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+
+Application Name: STG81/Common/AuditMessage
+    Service Name: AuditMessage.par
+    Deployment Status: Success
+        Service Instance Name: AuditMessage-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: AuditMessage-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+    Service Name: PayloadBlogger.par
+    Deployment Status: Success
+        Service Instance Name: PayloadBlogger-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: PayloadBlogger-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+    Service Name: SendToDB.par
+    Deployment Status: Success
+        Service Instance Name: SendToDB-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: SendToDB-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+
+Application Name: STG81/ASREFC/EFCPicture
+    Service Name: ToEFC_Picture.par
+    Deployment Status: Success
+        Service Instance Name: ToEFC_Picture-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: ToEFC_Picture-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+
+Application Name: STG81/ASREFC/ASREFC
+    Service Name: ToEFC.par
+    Deployment Status: Success
+        Service Instance Name: ToEFC-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: ToEFC-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+
+Application Name: STG81/Lufthansa/Lufthansa
+    Service Name: ToVoyage.par
+    Deployment Status: Success
+        Service Instance Name: ToLufthansa-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: ToLufthansa-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+
+Application Name: STG81/ShipShoreHighway/ShipShoreHighway
+    Service Name: ToShipShoreHighway.par
+    Deployment Status: Success
+        Service Instance Name: ToShipShoreHighway-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: ToShipShoreHighway-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+
+Application Name: STG81/SimpleK/SimpleK
+    Service Name: ToSimpleK.par
+    Deployment Status: Success
+        Service Instance Name: ToSimpleK-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: ToSimpleK-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+
+Application Name: STG81/Lufthansa/XControl
+    Service Name: ToXControl.par
+    Deployment Status: Disabled
+        Service Instance Name: ToXControl-01-01
+        Deployment Status: Disabled
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Unknown
+        Service Instance Name: ToXControl-02-01
+        Deployment Status: Disabled
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Unknown
+    Service Name: FromXDining.par
+    Deployment Status: Success
+        Service Instance Name: FromXDining-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: FromXDining-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+    Service Name: ToXDining.par
+    Deployment Status: Success
+        Service Instance Name: ToXDining-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: ToXDining-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+
+Application Name: STG81/Casino/Casino
+    Service Name: ToCasino.par
+    Deployment Status: Success
+        Service Instance Name: ToCasino-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: ToCasino-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby
+
+Application Name: STG81/Lufthansa/XDining
+    Service Name: ToVoyage.par
+    Deployment Status: Success
+        Service Instance Name: ToXDining-01-01
+        Machine Name: nlbw981.nowlab.tstsh.tstrccl.com
+        Status: Running
+        Service Instance Name: ToXDining-02-01
+        Machine Name: nlbw982.nowlab.tstsh.tstrccl.com
+        Status: Standby

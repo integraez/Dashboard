@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Ship System Status Monitor</title>
+    <link rel="stylesheet" th:href="@{/css/endpoints-ship.css}">
+</head>
+<body>
+<header>
+    <div class="topbar">
+        <div class="title"><span class="badge">Operations</span> Shipboard Endpoints Status Monitor</div>
+        <div class="hint">Real-time monitoring • Auto-refresh every 15 minutes • Filter by status • <span id="nextRefresh">Next refresh in 15:00</span></div>
+        <div style="display:flex; gap:8px;">
+            <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 8c0-3.3-2.7-6-6-6-2.4 0-4.4 1.4-5.4 3.4M2 8c0 3.3 2.7 6 6 6 2.4 0 4.4-1.4 5.4-3.4M14 4v4h-4M2 12v-4h4"/>
+                </svg>
+                Refresh Now
+            </button>
+            <button class="back-btn" onclick="window.location.href='/'">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10 12L6 8l4-4"/>
+                </svg>
+                Back to Home
+            </button>
+        </div>
+    </div>
+</header>
+
+<main>
+    <section class="layout">
+        
+        <!-- SUMMARY PANEL -->
+        <div class="panel summary-panel">
+            <div class="panel-head">
+                <h2>Fleetwide Overview</h2>
+                <div class="sub"><span id="lastUpdate">Loading...</span></div>
+            </div>
+            <div class="summary-grid">
+                <div class="stat-card total-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-value" id="totalSystems">0</div>
+                    <div class="stat-label">Total Systems</div>
+                </div>
+                <div class="stat-card running-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-value" id="runningCount">0</div>
+                    <div class="stat-label">Running</div>
+                </div>
+                <div class="stat-card outage-card">
+                    <div class="stat-icon">🔴</div>
+                    <div class="stat-value" id="outageCount">0</div>
+                    <div class="stat-label">In Outage</div>
+                </div>
+                <div class="stat-card other-card">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-value" id="otherCount">0</div>
+                    <div class="stat-label">Other Status</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILTERS & SEARCH -->
+        <div class="panel filters-panel">
+            <div class="filters-content">
+                <div class="search-box">
+                    <input id="searchInput" placeholder="Search by ship code or system name..." />
+                </div>
+                <div class="ship-filter">
+                    <select id="shipCodeFilter" aria-label="Filter by ship code">
+                        <option value="all">All Ship Codes</option>
+                    </select>
+                </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="running">Running</button>
+                    <button class="filter-btn" data-filter="outage">Outage</button>
+                    <button class="filter-btn" data-filter="other">Other</button>
+                </div>
+                <div class="view-toggle">
+                    <button class="view-btn active" data-view="grid" title="Grid View">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <rect x="2" y="2" width="5" height="5" rx="1"/>
+                            <rect x="9" y="2" width="5" height="5" rx="1"/>
+                            <rect x="2" y="9" width="5" height="5" rx="1"/>
+                            <rect x="9" y="9" width="5" height="5" rx="1"/>
+                        </svg>
+                    </button>
+                    <button class="view-btn" data-view="list" title="List View">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="3" y1="4" x2="13" y2="4"/>
+                            <line x1="3" y1="8" x2="13" y2="8"/>
+                            <line x1="3" y1="12" x2="13" y2="12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SYSTEMS GRID/LIST -->
+        <div class="panel systems-panel">
+            <div class="panel-head">
+                <h2>Endpoints Status</h2>
+                <div class="sub">Showing <span id="visibleCount">0</span> of <span id="totalCount">0</span> systems</div>
+            </div>
+            <div class="systems-container" id="systemsContainer">
+                <!-- Systems will be populated here by JavaScript -->
+            </div>
+        </div>
+
+    </section>
+</main>
+
+<!-- System Detail Modal -->
+<div class="modal" id="detailModal" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h2>System Details</h2>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <!-- Details will be populated here -->
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/endpoints-ship.js}"></script>
+</body>
+</html>
