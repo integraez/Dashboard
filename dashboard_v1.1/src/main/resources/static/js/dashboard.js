@@ -208,6 +208,17 @@ let currentModalServer = null;
 let currentModalSort = 'name';
 let currentModalQueues = [];
 let configuredServers = []; // Will be populated from API
+let prodOnlyFilter = false;
+
+function toggleProdOnly() {
+  prodOnlyFilter = !prodOnlyFilter;
+  const btn = document.getElementById('prodOnlyBtn');
+  if (btn) {
+    btn.classList.toggle('active', prodOnlyFilter);
+    btn.textContent = prodOnlyFilter ? 'Show ALL Servers' : 'Show PROD Only';
+  }
+  renderServerTiles();
+}
 
 function buildServerQueuesMap() {
   const servers = {};
@@ -244,8 +255,14 @@ async function renderServerTiles() {
   // Build a map of server data from ships
   const serverDataMap = buildServerQueuesMap();
   
-  // Create tiles for ALL configured servers
-  configuredServers.sort((a, b) => {
+  // Create tiles for ALL configured servers (filtered if prodOnlyFilter is active)
+  configuredServers
+    .filter(serverItem => {
+      if (!prodOnlyFilter) return true;
+      const name = typeof serverItem === 'string' ? serverItem : serverItem.name;
+      return !name.toUpperCase().includes('LAB');
+    })
+    .sort((a, b) => {
     const nameA = typeof a === 'string' ? a : a.name;
     const nameB = typeof b === 'string' ? b : b.name;
     return nameA.localeCompare(nameB);
@@ -472,9 +489,16 @@ function render(){
   const now = Date.now();
   lastTick.textContent = "Last update: " + new Date(now).toLocaleTimeString();
 
+  // Helper: exclude LAB servers when prodOnlyFilter is active
+  function isVisibleShip(s) {
+    if (!prodOnlyFilter) return true;
+    const serverName = s.name.split(' / ')[0] || '';
+    return !serverName.toUpperCase().includes('LAB');
+  }
+
   // counts
   const c = { ok:0, warn:0, err:0, off:0 };
-  ships.forEach(s => c[s.status]++);
+  ships.filter(isVisibleShip).forEach(s => c[s.status]++);
   countsEl.innerHTML = `
     <div class="chip"><span class="dot err"></span><b>${c.err}</b>&nbsp;Errors</div>
     <div class="chip"><span class="dot warn"></span><b>${c.warn}</b>&nbsp;Warnings</div>
@@ -502,6 +526,7 @@ function render(){
 
   // attention list = err/warn not acked, sorted by severity + recency
   const attention = ships
+    .filter(isVisibleShip)
     .filter(s => (s.status==="err" || s.status==="warn") && !s.acked)
     .filter(s => !q || s.name.toLowerCase().includes(q))
     .sort((a,b)=> statusWeight[b.status]-statusWeight[a.status] || b.lastEventAt-a.lastEventAt);
@@ -530,7 +555,7 @@ function render(){
   }
 
   // all list A–Z with search/filter
-  const base = ships.slice().sort((a,b)=> a.letter.localeCompare(b.letter) || a.name.localeCompare(b.name));
+  const base = ships.filter(isVisibleShip).sort((a,b)=> a.letter.localeCompare(b.letter) || a.name.localeCompare(b.name));
 
   const filtered = base.filter(s=>{
     // Filter by selected server
