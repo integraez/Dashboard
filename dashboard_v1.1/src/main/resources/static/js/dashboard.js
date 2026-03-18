@@ -483,6 +483,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  const prodOnlyBtn = document.getElementById('prodOnlyBtn');
+  if (prodOnlyBtn) {
+    prodOnlyBtn.addEventListener('click', toggleProdOnly);
+  }
 });
 
 // ---------- Rendering ----------
