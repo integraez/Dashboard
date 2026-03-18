@@ -40,6 +40,9 @@ server:
   error:
     whitelabel:
       enabled: false
+  servlet:
+    session:
+      timeout: 1h
 
 tibco:
   ems:

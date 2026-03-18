@@ -65,12 +65,18 @@
         <div class="panel filters-panel">
             <div class="filters-content">
                 <div class="search-box">
-                    <input id="searchInput" placeholder="Search by ship code or system name..." />
+                    <input id="searchInput" placeholder="Search by system name..." />
                 </div>
                 <div class="ship-filter">
                     <select id="shipCodeFilter" aria-label="Filter by ship code">
                         <option value="all">All Ship Codes</option>
                     </select>
+                </div>
+                <div class="suppress-filter">
+                    <select id="suppressShipSelect" aria-label="Do not show a ship code">
+                        <option value="">Do Not Show</option>
+                    </select>
+                    <div class="suppressed-tags" id="suppressedTags"></div>
                 </div>
                 <div class="filter-buttons">
                     <button class="filter-btn active" data-filter="all">All</button>
