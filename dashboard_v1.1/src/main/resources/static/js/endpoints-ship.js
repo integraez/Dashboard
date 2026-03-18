@@ -9,6 +9,64 @@ let nextRefreshSeconds = 900;
 let lastScrollTop = 0;
 let scrollThreshold = 100;
 
+// Suppressed ship codes — persisted to localStorage
+const SUPPRESS_KEY = 'endpoints_suppressed_ships';
+let suppressedShipCodes = new Set(JSON.parse(localStorage.getItem(SUPPRESS_KEY) || '[]'));
+
+function saveSuppressed() {
+    localStorage.setItem(SUPPRESS_KEY, JSON.stringify([...suppressedShipCodes]));
+}
+
+function addSuppressedShip(code) {
+    if (!code) return;
+    suppressedShipCodes.add(code.toUpperCase());
+    saveSuppressed();
+    renderSuppressedTags();
+    populateSuppressDropdown();
+    applyFilters();
+    updateSummary();
+}
+
+function removeSuppressedShip(code) {
+    suppressedShipCodes.delete(code);
+    saveSuppressed();
+    renderSuppressedTags();
+    populateSuppressDropdown();
+    applyFilters();
+    updateSummary();
+}
+
+function renderSuppressedTags() {
+    const container = document.getElementById('suppressedTags');
+    if (!container) return;
+    if (suppressedShipCodes.size === 0) {
+        container.innerHTML = '';
+        return;
+    }
+    container.innerHTML = [...suppressedShipCodes].sort().map(code => `
+        <span class="suppressed-tag">
+            ${code}
+            <button class="suppressed-tag-remove" onclick="removeSuppressedShip('${code}')" title="Unsuppress ${code}">&times;</button>
+        </span>
+    `).join('');
+}
+
+function populateSuppressDropdown() {
+    const sel = document.getElementById('suppressShipSelect');
+    if (!sel) return;
+    const codes = Array.from(new Set(
+        allSystems.map(s => normalizeShipCode(s.ssmShipCode)).filter(Boolean)
+    )).sort();
+    sel.innerHTML = '<option value="">Do not show</option>';
+    codes.filter(c => !suppressedShipCodes.has(c)).forEach(code => {
+        const opt = document.createElement('option');
+        opt.value = code;
+        opt.textContent = code;
+        sel.appendChild(opt);
+    });
+    sel.value = '';
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     initializeEventListeners();
@@ -28,6 +86,14 @@ function initializeEventListeners() {
         shipCodeFilter.addEventListener('change', function () {
             currentShipCodeFilter = this.value;
             applyFilters();
+        });
+    }
+
+    const suppressSel = document.getElementById('suppressShipSelect');
+    if (suppressSel) {
+        suppressSel.addEventListener('change', function () {
+            addSuppressedShip(this.value);
+            this.value = '';
         });
     }
     
@@ -116,6 +182,8 @@ async function loadSystemData() {
         console.log(`Loaded ${allSystems.length} systems from API`);
 
         populateShipCodeFilter();
+        populateSuppressDropdown();
+        renderSuppressedTags();
         applyFilters();
         updateSummary();
         updateLastUpdate();
@@ -152,6 +220,9 @@ function applyFilters() {
     const selectedShipCode = normalizeShipCode(currentShipCodeFilter);
     
     filteredSystems = allSystems.filter(system => {
+        // Filter out suppressed ships
+        if (suppressedShipCodes.has(normalizeShipCode(system.ssmShipCode))) return false;
+
         // Filter by ship code
         let shipCodeMatch = true;
         if (selectedShipCode && selectedShipCode !== 'ALL') {
