@@ -487,8 +487,8 @@ main{ padding:18px; }
 .servers-section-head{
   display: flex;
   align-items: center;
-  gap: 12px;
   margin-bottom: 14px;
+  position: relative;
 }
 .servers-section h3{
   margin: 0;
@@ -504,12 +504,13 @@ main{ padding:18px; }
   padding: 5px 13px;
   border-radius: 8px;
   border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(35,196,131,0.92);
-  font-size: 12px;
+  background: rgba(35, 196, 59, 0.92);
+  font-size: 14px;
   color: rgba(255,255,255,0.80);
   transition: all 150ms ease;
-  white-space: nowrap;
-}
+  white-space: nowrap;  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);}
 .prod-only-btn:hover{
   background: rgba(124,92,255,0.15);
   border-color: rgba(124,92,255,0.30);

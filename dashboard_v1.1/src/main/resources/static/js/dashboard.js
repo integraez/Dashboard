@@ -218,6 +218,7 @@ function toggleProdOnly() {
     btn.textContent = prodOnlyFilter ? 'Show ALL Servers' : 'Show PROD Only';
   }
   renderServerTiles();
+  render();
 }
 
 function buildServerQueuesMap() {
